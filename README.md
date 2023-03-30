@@ -4,7 +4,7 @@ This repository contains dated records of curated Marburg case data from the 202
 
 Our latest data set and archives can be found [here](https://3mmuwilir3.execute-api.eu-central-1.amazonaws.com/web).
 
-Our first line list was published on March 30th, 2023 and is based on data up to March 21st, 2023. As new data become available we are updating the line list. The line list is created directly from a report from the Ministerio de Sanidad y Bienestar Social de la República de Guinea Ecuatorial Salud (https://guineasalud.org/).
+Our first line list was published on March 30th, 2023 and is based on data up to March 21st, 2023. As new data become available we are updating the line list. The line list is created directly from a report from the Ministerio de Sanidad y Bienestar Social de la República de Guinea Ecuatorial (https://guineasalud.org/).
 
 There may be discrepancies and data remains limited at this stage of the outbreak. Should you find additional detail or have comments about the accuracy of information supplied here please address questions to info@global.health.
 
