@@ -10,7 +10,7 @@ services:
       LOCALSTACK_URL: "http://localstack:4566"
       S3_BUCKET: "fake"
       DB_CONNECTION: "mongodb://mongo:27017"
-      DATABASE_NAME: "ebola"
+      DATABASE_NAME: "marburg"
       GH_COLLECTION: "gh"
       AWS_ACCESS_KEY_ID: "fake"
       AWS_SECRET_ACCESS_KEY: "fake"
@@ -34,4 +34,4 @@ services:
     ports:
       - "27017:27017"
     environment:
-      MONGO_INITDB_DATABASE: "ebola"
+      MONGO_INITDB_DATABASE: "marburg"
