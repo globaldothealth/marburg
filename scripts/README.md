@@ -1,8 +1,9 @@
-# Ebola analytics scripts
+# Marburg 2023 analytics scripts
 
 This folder contains analytics and helper scripts, configuration for their runtime and testing environments.
 
 The analysis performed by the scripts in this folder includes:
+
 * Ingestion of data from GSheets to S3 and MongoDB
 
 ## Use
@@ -21,6 +22,7 @@ Scripts can run inside containers on AWS Batch with Fargate.
 
 To build the image, run `docker build -f ./../Dockerfile -t <TAG> .`.
 To push it to ECR, run:
+
 ```
 docker tag <LOCAL_IMAGE_TAG> <ACCOUNT_NUMBER>.dkr.ecr.eu-central-1.amazonaws.com/<ECR_REPO>:<ECR_IMAGE_TAG>
 aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin <ACCOUNT_NUMBER>.dkr.ecr.eu-central-1.amazonaws.com

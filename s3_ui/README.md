@@ -1,8 +1,8 @@
-# Ebola Data Navigator
+# Marburg 2023 Data Navigator
 
 ## What it does
 
-This folder contains the code needed to run a web service that exposes archived Ebola files.
+This folder contains the code needed to run a web service that exposes archived Marburg 2023 files.
 
 Users can use their web browsers to navigate and download files by using templated links.
 The server finds files in desired folders and exposes on-demand presigned URLs to S3 objects.
