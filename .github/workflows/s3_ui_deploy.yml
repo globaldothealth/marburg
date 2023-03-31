@@ -4,8 +4,8 @@ on:
   push:
     branches: [main]
     paths:
-      - 'scripts/s3_ui/**'
-      - '!scripts/s3_ui/README.md'
+      - 's3_ui/**'
+      - '!s3_ui/README.md'
       - '.github/workflows/s3_ui_deploy.yml'
   workflow_dispatch:
 
