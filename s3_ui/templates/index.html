@@ -3,19 +3,27 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Marburg 2023 Data Files</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+    <link rel="shortcut icon" type="image/x-icon"
+        href="https://global.health/wp-content/uploads/2020/10/gs-favicon-green.png">
+    <link rel="apple-touch-icon" href="https://global.health/wp-content/uploads/2020/10/gs-favicon-green.png">
 </head>
 
 <body>
     <div>
-        <h2>Contents of G.h Ebola data bucket</h2>
+        <h1>G.h Marburg 2023 Data</h1>
     </div>
     <div><a href="{{ url_for('get_archive_files') }}">Line List Archives</a></div>
-    {% for f in files %}
-    <div>
-        <a href="{{ url_for('get_presigned_url', folder='', file_name=f) }}">{{ f }}</a>
-    </div>
-    {% endfor %}
+
+    <ul>
+        {% for f in files %}
+        <li>
+            <a href="{{ url_for('get_presigned_url', folder='', file_name=f) }}">{{ f }}</a>
+        </li>
+        {% endfor %}
+    </ul>
 </body>
 
 </html>
