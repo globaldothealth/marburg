@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Marburg 2023 Data Files</title>
+    <title>Marburg 2023 Data</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
     <link rel="shortcut icon" type="image/x-icon"
         href="https://global.health/wp-content/uploads/2020/10/gs-favicon-green.png">
@@ -15,7 +15,8 @@
     <div>
         <h1>G.h Marburg 2023 Data</h1>
     </div>
-    <div><a href="{{ url_for('get_archive_files') }}">Line List Archives</a></div>
+    <div><a href="{{ url_for('get_archive_files') }}">Line List Archives</a> | <a
+            href="{{ url_for('get_case_definition_files') }}">Case Definitions</a></div>
 
     <ul>
         {% for f in files %}

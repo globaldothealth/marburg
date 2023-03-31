@@ -12,8 +12,9 @@ LOCALSTACK_URL = os.environ.get("LOCALSTACK_URL")
 S3_BUCKET = os.environ.get("S3_BUCKET")
 
 ARCHIVES = "archive"
+CASE_DEFINITIONS = "case-definitions"
 
-FOLDERS = [ARCHIVES]
+FOLDERS = [ARCHIVES, CASE_DEFINITIONS]
 
 LATEST_FILES = ["latest.csv"]
 
@@ -39,13 +40,17 @@ def get_archive_files():
         return f"Exception: {exc}"
 
 
+@APP.route(f"/{CASE_DEFINITIONS}")
+def get_case_definition_files():
+    files = [f.split("/")[1] for f in list_bucket_contents(CASE_DEFINITIONS)]
+    logging.debug(f"Files in {CASE_DEFINITIONS} folder: {files}")
+    return render_template("folder.html", folder=CASE_DEFINITIONS, files=files)
+
+
 def list_bucket_contents(folder: str) -> list[str]:
     logging.debug(f"Listing bucket contents for folder {folder}")
     client = create_s3_client()
-    response = client.list_objects(Bucket=S3_BUCKET,
-                                 Prefix=f"{folder}/",
-                                 Delimiter="/"
-                                )
+    response = client.list_objects(Bucket=S3_BUCKET, Prefix=f"{folder}/", Delimiter="/")
     contents = []
     for obj in response.get("Contents", []):
         contents.append(obj.get("Key"))
@@ -57,8 +62,8 @@ def list_bucket_contents(folder: str) -> list[str]:
 @APP.route("/url")
 def get_presigned_url():
     args = request.args
-    folder = args.get('folder', '')
-    file_name = args.get('file_name', '')
+    folder = args.get("folder", "")
+    file_name = args.get("file_name", "")
     target = ""
     if not folder:
         target = file_name
@@ -67,7 +72,9 @@ def get_presigned_url():
     logging.debug(f"Creating presigned URL for {target}")
     client = create_s3_client()
     params = {"Bucket": S3_BUCKET, "Key": f"{target}"}
-    return redirect(client.generate_presigned_url("get_object", Params=params, ExpiresIn=60))
+    return redirect(
+        client.generate_presigned_url("get_object", Params=params, ExpiresIn=60)
+    )
 
 
 def create_s3_client() -> object:
