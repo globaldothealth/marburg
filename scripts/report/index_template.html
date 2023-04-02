@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Marburg 2023 Equatorial Guinea Outbreak - {{ date }}</title>
+    <meta name="description" content="Marburg 2023 outbreak briefing report from Global.health">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://www.monkeypox.global.health/style.css">
+    <link rel="shortcut icon" type="image/x-icon"
+        href="https://global.health/wp-content/uploads/2020/10/gs-favicon-green.png">
+    <link rel="apple-touch-icon" href="https://global.health/wp-content/uploads/2020/10/gs-favicon-green.png">
+    <script src="https://cdn.plot.ly/plotly-2.12.1.min.js"></script>
+</head>
+
+<body>
+    <main>
+        <nav>
+            <img class="logo" src="https://global.health/wp-content/uploads/2020/07/gh-logo-full-black.png"
+                alt="Global.health logo"></li>
+            <ul>
+                <li><a href="https://l66noa47nk.execute-api.eu-central-1.amazonaws.com/web">Data</a></li>
+                <li><a href="https://github.com/globaldothealth/marburg">GitHub</a></li>
+            </ul>
+        </nav>
+        <h1>Marburg 2023 Equatorial Guinea Outbreak<br>{{ date }}</h1>
+        <p>From the <a href="https://global.health">Global.health</a> team (<a
+                href="mailto:info@global.health">info@global.health</a>)
+        </p>
+
+        <h2>Summary</h2>
+
+        {{#info}}
+        <div class="info">
+            <p>{{ info }}</p>
+        </div>
+        {{/info}}
+
+        <p style="font-size: larger">The Marburg 2023 Equatorial Guinea outbreak has
+            <strong>{{ n_confirmed }}</strong> confirmed and <strong>{{ n_probable }}</strong>
+            probable cases as of {{ date }}.
+        </p>
+
+        <figure>
+
+            {{{ embed_epicurve }}}
+
+            <figcaption>
+                <strong>Figure 1</strong>: Number of cumulative confirmed and probable cases
+                by date of onset. Where date of onset is not available, it is
+                estimated from the date of first consult/hospitalisation or date
+                of death, by shifting the value by the delay distribution mean.
+            </figcaption>
+        </figure>
+
+        <figure>
+
+            {{{ embed_age_gender }}}
+            <figcaption>
+                <strong>Figure 2</strong>: Age and gender distribution of
+                Marburg 2023 confirmed cases in Equatorial Guinea.
+                {{ pc_valid_age_gender_in_confirmed }}% of confirmed cases include
+                sufficient metadata to be included in this figure. When reported
+                age ranges that span multiple age categories, counts are evenly
+                distributed among the categories that capture the reported age
+                range.
+            </figcaption>
+        </figure>
+
+        <figure>
+
+            {{{ embed_delay_distribution_consult }}}
+
+            {{{ embed_delay_distribution_death }}}
+
+            <figcaption>
+                <strong>Figure 3</strong>: Delay distributions from date of
+                symptom onset A) Between onset and first consult B) Between
+                onset and death
+            </figcaption>
+        </figure>
+
+        <p><strong>Data accessibility and reproducibility</strong>: All data
+            used in this report are available from our <a
+                href="https://l66noa47nk.execute-api.eu-central-1.amazonaws.com/web">data
+                repository</a>. Should you identify any issues or have questions please
+            raise an issue on <a href="https://github.com/globaldothealth/marburg">GitHub</a> or write to
+            us: <a href="mailto:info@global.health">info@global.health</a>.</p>
+
+    </main>
+</body>
+
+</html>

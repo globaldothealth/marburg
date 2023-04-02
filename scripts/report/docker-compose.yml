@@ -1,0 +1,27 @@
+services:
+  app:
+    build:
+      context: ./
+      dockerfile: ./../Dockerfile
+      args:
+        SCRIPT_DIR: "report"
+    environment:
+      DOCKERIZED: "absolutely"
+      LOCALSTACK_URL: "http://localstack:4566"
+      S3_BUCKET: "source"
+      S3_BUCKET_REPORT: "report"
+      AWS_ACCESS_KEY_ID: "fake"
+      AWS_SECRET_ACCESS_KEY: "fake"
+  localstack:
+    image: localstack/localstack
+    environment:
+      AWS_ACCESS_KEY_ID: "fake"
+      AWS_SECRET_ACCESS_KEY: "fake"
+      SERVICES: "s3"
+      DOCKER_HOST: "unix:///var/run/docker.sock"
+    volumes:
+      - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    ports:
+      - "4566:4566"            # LocalStack Gateway
+      - "4510-4559:4510-4559"  # external services port range
