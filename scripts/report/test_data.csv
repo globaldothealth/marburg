@@ -1,0 +1,8 @@
+ID,Case_status,Age,Gender,Date_onset,Date_death,Date_of_first_consult,Data_up_to
+1,confirmed,50-55,male,2023-03-05,2023-03-09,,2023-04-04
+2,probable,40-46,female,2023-02-06,2023-02-14,,2023-04-04
+3,confirmed,20,male,2023-02-19,,2023-02-25,2023-04-04
+4,confirmed,99,female,2023-01-05,2023-01-11,,2023-04-04
+5,probable,65,male,,2023-01-19,,2023-04-04
+6,confirmed,59,female,,,2023-04-02,2023-04-04
+7,confirmed,0,male,2023-02-11,,2023-02-13,2023-04-04
