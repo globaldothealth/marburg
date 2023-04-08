@@ -1,9 +1,9 @@
 from datetime import datetime
-import json
+import io
+import csv
 import logging
 import os
 import sys
-from urllib.parse import urlparse
 
 import boto3
 from pymongo import MongoClient
@@ -26,10 +26,29 @@ DB_CONNECTION = os.environ.get("DB_CONNECTION")
 DATABASE_NAME = os.environ.get("DATABASE_NAME")
 GH_COLLECTION = os.environ.get("GH_COLLECTION")
 
-MINIMUM_DATA = ["ID", "Date_confirmation", "Curator_initials", "Country", "Status"]
-
-PRIVATE_FIELDS = ["Curator_initials", "Notes", "Pathogen_status"]
-
+INCLUDE_FIELDS = [
+    "ID",
+    "Pathogen",
+    "Country",
+    "Country_ISO3",
+    "Case_status",
+    "Confirmation_method",
+    "Occupation",
+    "Gender",
+    "Age",
+    "Date_onset",
+    "Outcome",
+    "Date_of_first_consult",
+    "Date_death",
+    "Date_recovered",
+    "Location_District",
+    "Location_Subdistrict",
+    "Contact_with_case",
+    "Contact_ID",
+    "Source",
+    "Date_entry",
+    "Data_up_to",
+]
 TODAY = datetime.today()
 
 
@@ -48,36 +67,34 @@ def get_data():
     return spreadsheet[0].get_all_records()
 
 
-def clean_data(data):
+def clean_data_streamed(data):
     logging.info("Cleaning data")
     for c in data:
-        for field in PRIVATE_FIELDS:
-            if field in c:
-                c.pop(field)
-    return data
+        if c["ID"] is None or (isinstance(c["ID"], str) and c["ID"].strip() == ""):
+            continue
+        yield {field: c.get(field) for field in set(INCLUDE_FIELDS) & set(c.keys())}
 
 
 def format_data(data):
     logging.info("Formatting data")
-    csv_data = ""
-    column_names = data[0].keys()
-    for name in column_names:
-        csv_data += f"{name},"
-    csv_data += "\n"
+    buf = io.StringIO()
+    all_keys = set(sum((list(c.keys()) for c in data), []))
+    writer = csv.DictWriter(
+        buf, fieldnames=[k for k in INCLUDE_FIELDS if k in all_keys]
+    )
+    writer.writeheader()
     for row in data:
-        for val in row.values():
-            csv_data += f"{str(val).replace(',', ';')},"
-        csv_data += "\n"
-    return csv_data
+        writer.writerow(row)
+    return buf.getvalue()
 
 
 def store_data(csv_data):
     logging.info("Uploading data to S3")
     try:
         S3.Object(S3_BUCKET, f"{S3_FOLDER}/{TODAY}.csv").put(Body=csv_data)
-        S3.Object(S3_BUCKET, f"latest.csv").put(Body=csv_data)
-    except Exception as exc:
-        logging.exception(f"An exception occurred while trying to upload files")
+        S3.Object(S3_BUCKET, "latest.csv").put(Body=csv_data)
+    except Exception:
+        logging.exception("An exception occurred while trying to upload files")
         raise
 
 
@@ -99,7 +116,7 @@ if __name__ == "__main__":
     setup_logger()
     logging.info("Starting Marburg 2023 data ingestion")
     data = get_data()
-    data = clean_data(data)
+    data = list(clean_data_streamed(data))
     csv_data = format_data(data)
     store_data(csv_data)
     data_to_db(data)
