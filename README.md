@@ -17,13 +17,13 @@ Users should refer to our [data dictionary](data_dictionary.yml) for a descripti
 
 **Case_status**: Only confirmed, probable, and suspected cases are logged at this time. We also list the number of contacts but no detail on these contacts is available. 
 
-**Date_of_onset**: Information is  available for a selection of cases.
+**Date_onset**: Information is available for a selection of cases.
 
 Data are hand-curated. The process and methods to create, organize, and maintain data have been applied with consistency. As stated above, line-list data may change due to ongoing data reconciliation and validation. We welcome your contributions and feedback.
 
 ## Contributing
 
-If you would like to request changes, [open an issue](https://github.com/globaldothealth/Marburg/issues/new) on this repository and we will happily consider your request. 
+If you would like to request changes, [open an issue](https://github.com/globaldothealth/marburg/issues/new) on this repository and we will happily consider your request. 
 
 If requesting a fix please include steps to reproduce undesirable behaviors.
 
