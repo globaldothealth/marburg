@@ -10,7 +10,7 @@ from run import (
     GH_COLLECTION,
     S3_BUCKET,
     LOCALSTACK_URL,
-    clean_data,
+    clean_data_streamed,
     format_data,
     data_to_db,
     store_data,
@@ -18,11 +18,12 @@ from run import (
 
 CASE = {
     "ID": 1,
-    "Date_confirmation": "2021-05-12",
+    "Date_onset": "2021-05-12",
     "Curator_initials": "ZZ",
     "Notes": "example note",
     "Country": "Equatorial Guinea",
-    "Status": "confirmed",
+    "Country_ISO3": "GNQ",
+    "Case_status": "confirmed",
 }
 
 CLEAN_CASE = CASE.copy()
@@ -31,8 +32,8 @@ del CLEAN_CASE["Notes"]
 CLEAN_DATA = [CLEAN_CASE]
 
 CSV_DATA = """
-ID,Date_confirmation,Country,Status,
-1,2021-05-12,Equatorial Guinea,confirmed,
+ID,Country,Country_ISO3,Case_status,Date_onset\r
+1,Equatorial Guinea,GNQ,confirmed,2021-05-12\r
 """
 
 
@@ -49,7 +50,7 @@ def get_db_records(collection: str) -> list[dict]:
 
 
 def test_clean_data():
-    assert clean_data([CASE]) == CLEAN_DATA
+    assert list(clean_data_streamed([CASE])) == CLEAN_DATA
 
 
 def test_format_data():
