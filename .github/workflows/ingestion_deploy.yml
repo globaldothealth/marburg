@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
     paths:
+      - '.github/workflows/ingestion_deploy.yml'
       - 'scripts/ingestion/*.py'
       - 'scripts/ingestion/pyproject.toml'
       - 'scripts/ingestion/poetry.lock'
@@ -27,10 +28,11 @@ jobs:
       uses: aws-actions/amazon-ecr-login@v1
 
     - name: Build, tag, and push image to Amazon ECR (latest)
+      working-directory: scripts/ingestion
       env:
         REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        REPO: ebola
+        REPO: marburg
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        cd scripts/gh_data_update && docker build -f ./../Dockerfile -t $REGISTRY/$REPO:latest .
+        docker build -f ./../Dockerfile -t $REGISTRY/$REPO:latest .
         docker push $REGISTRY/$REPO:latest
