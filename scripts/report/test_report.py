@@ -77,7 +77,7 @@ def test_get_counts():
         "n_confirmed": 5,
         "n_probable": 2,
         "date": "2023-04-04",
-        "pc_valid_age_gender_in_confirmed": 100,
+        "pc_valid_age_gender": 100,
     }
 
 
@@ -94,12 +94,14 @@ def test_e2e():
     store_s3(CSV_DATA, f"archive/{datetime.datetime.today()}.csv")
     store_s3(CSV_DATA, "latest.csv")
 
+    today = datetime.datetime.today().date().isoformat()
     assert get_contents("latest.csv") == CSV_DATA
     build(S3_BUCKET)
     assert get_contents("index.html", S3_BUCKET_REPORT)
     assert json.loads(get_contents("metadata.json", S3_BUCKET_REPORT)) == dict(
         n_confirmed=5,
         n_probable=2,
-        pc_valid_age_gender_in_confirmed=100,
+        pc_valid_age_gender=100,
         date="2023-04-04",
+        published_date=today,
     )

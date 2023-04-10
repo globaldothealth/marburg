@@ -26,6 +26,7 @@ pd.options.mode.chained_assignment = None
 REGEX_DATE = r"^202\d-[0,1]\d-[0-3]\d"
 OVERRIDES = {}
 FONT = "Inter"
+TITLE_FONT = "mabry-regular-pro"
 AGE_BINS = [
     (0, 0),
     (1, 9),
@@ -176,9 +177,10 @@ def get_counts(df: pd.DataFrame) -> dict[str, int]:
     return {
         "n_confirmed": int(status.confirmed),
         "n_probable": int(status.get("probable", 0)),
-        "date": str(df.Data_up_to.max()),
-        "pc_valid_age_gender_in_confirmed": percentage_occurrence(
-            confirmed, (~confirmed.Age.isna()) & (~confirmed.Gender.isna())
+        "date": str(df[~pd.isna(df.Data_up_to)].Data_up_to.max()),
+        "pc_valid_age_gender": percentage_occurrence(
+            confirmed,
+            (~confirmed.Age.isna()) & (~confirmed.Gender.isna()),
         ),
     }
 
@@ -215,9 +217,12 @@ def plot_epicurve(df: pd.DataFrame, cumulative: bool = True):
             ),
         )
 
-    fig.update_xaxes(title_text="Date of symptom onset")
+    fig.update_xaxes(title_text="Date of symptom onset", title_font_family=TITLE_FONT)
 
-    fig.update_yaxes(title_text="Cumulative cases" if cumulative else "Cases")
+    fig.update_yaxes(
+        title_text="Cumulative cases" if cumulative else "Cases",
+        title_font_family=TITLE_FONT,
+    )
     fig.update_layout(plot_bgcolor="white", font_family=FONT)
     return fig
 
@@ -248,8 +253,12 @@ def plot_delay_distribution(
         plot_bgcolor="white",
         font_family=FONT,
         title=index,
+        title_font_family=TITLE_FONT,
         bargap=0.2,
     )
+    fig.update_xaxes(title_font_family=TITLE_FONT)
+    fig.update_yaxes(title_font_family=TITLE_FONT)
+
     return fig
 
 
@@ -270,15 +279,21 @@ def plot_age_gender(df: pd.DataFrame):
     nearest = ((max_binval // 5) + 1) * 5
     ticks = [-nearest, -nearest / 2, 0, nearest / 2, nearest]
 
-    fig.update_yaxes(title="Age")
+    fig.update_yaxes(title="Age", title_font_family=TITLE_FONT)
     fig.update_xaxes(
         range=[-nearest, nearest],
         tickvals=ticks,
         ticktext=list(map(abs, ticks)),
         title="Counts",
+        title_font_family=TITLE_FONT,
     )
     fig.update_layout(
-        dict(barmode="overlay", bargap=0.1, template="plotly_white", font_family=FONT)
+        dict(
+            barmode="overlay",
+            bargap=0.1,
+            template="plotly_white",
+            font_family=FONT,
+        )
     )
 
     fig.add_trace(
@@ -343,8 +358,9 @@ def build(
     overrides=OVERRIDES,
 ):
     """Build Marburg 2023 epidemiological report for a particular date"""
-    var = {}
     date = date or datetime.datetime.today().date()
+    var = {"published_date": str(date)}
+
     if date in overrides:
         overrides = overrides[date]
         logging.info(f"Found overrides for {date}")
