@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Marburg 2023 Equatorial Guinea Outbreak - {{ date }}</title>
+    <title>Marburg 2023 Equatorial Guinea Outbreak - {{ published_date }}</title>
     <meta name="description" content="Marburg 2023 outbreak briefing report from Global.health">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -25,8 +25,8 @@
                 <li><a href="https://github.com/globaldothealth/marburg">GitHub</a></li>
             </ul>
         </nav>
-        <h1>Marburg 2023 Equatorial Guinea Outbreak<br>{{ date }}</h1>
-        <p>From the <a href="https://global.health">Global.health</a> team (<a
+        <h1>Marburg 2023 Equatorial Guinea Outbreak<br>{{ published_date }}</h1>
+        <p class="byline">From the <a href="https://global.health">Global.health</a> team (<a
                 href="mailto:info@global.health">info@global.health</a>)
         </p>
 
@@ -38,7 +38,7 @@
         </div>
         {{/info}}
 
-        <p style="font-size: larger">The Marburg 2023 Equatorial Guinea outbreak has
+        <p class="summary">The Marburg 2023 Equatorial Guinea outbreak has
             <strong>{{ n_confirmed }}</strong> confirmed and <strong>{{ n_probable }}</strong>
             probable cases as of {{ date }}.
         </p>
@@ -61,7 +61,7 @@
             <figcaption>
                 <strong>Figure 2</strong>: Age and gender distribution of
                 Marburg 2023 confirmed cases in Equatorial Guinea.
-                {{ pc_valid_age_gender_in_confirmed }}% of confirmed cases include
+                {{ pc_valid_age_gender }}% of confirmed cases include
                 sufficient metadata to be included in this figure. When reported
                 age ranges that span multiple age categories, counts are evenly
                 distributed among the categories that capture the reported age
