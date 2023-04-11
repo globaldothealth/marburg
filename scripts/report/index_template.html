@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Marburg 2023 Equatorial Guinea Outbreak - {{ published_date }}</title>
     <meta name="description" content="Marburg 2023 outbreak briefing report from Global.health">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/light.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://www.monkeypox.global.health/style.css">
     <link rel="shortcut icon" type="image/x-icon"
@@ -27,7 +27,8 @@
         </nav>
         <h1>Marburg 2023 Equatorial Guinea Outbreak<br>{{ published_date }}</h1>
         <p class="byline">From the <a href="https://global.health">Global.health</a> team (<a
-                href="mailto:info@global.health">info@global.health</a>)
+                href="mailto:info@global.health">info@global.health</a>) |
+            <a href="{{ published_date }}.html">Permalink</a>
         </p>
 
         <h2>Summary</h2>
@@ -38,9 +39,9 @@
         </div>
         {{/info}}
 
-        <p class="summary">The Marburg 2023 Equatorial Guinea outbreak has
+        <p class="summary">
             <strong>{{ n_confirmed }}</strong> confirmed and <strong>{{ n_probable }}</strong>
-            probable cases as of {{ date }}.
+            probable cases as of {{ date }}
         </p>
 
         <figure>
