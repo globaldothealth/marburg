@@ -5,28 +5,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Marburg 2023 Data</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/light.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://www.monkeypox.global.health/style.css">
     <link rel="shortcut icon" type="image/x-icon"
         href="https://global.health/wp-content/uploads/2020/10/gs-favicon-green.png">
     <link rel="apple-touch-icon" href="https://global.health/wp-content/uploads/2020/10/gs-favicon-green.png">
 </head>
 
 <body>
-    <div>
-        <h1>G.h Marburg 2023 Data</h1>
-        <h2>Contents of {{ folder }}</h2>
-    </div>
-    <ul>
-        {% for f in files %}
-        <li>
-            <a href="{{ url_for('get_presigned_url', folder=folder, file_name=f) }}">{{ f }}</a>
-        </li>
-        {% endfor %}
-    </ul>
-    <br>
-    <div>
-        <a href="{{ url_for('home') }}">Home</a>
-    </div>
+
+    <main>
+        <nav>
+            <img class="logo" src="https://global.health/wp-content/uploads/2020/07/gh-logo-full-black.png"
+                alt="Global.health logo"></li>
+            <ul>
+                <li><a href="{{ url_for('home') }}">Data</a></li>
+                <li><a href="https://github.com/globaldothealth/marburg">GitHub</a></li>
+            </ul>
+        </nav>
+        <div>
+            <h1>Marburg 2023 Data</h1>
+            <h2>Contents of {{ folder }}</h2>
+        </div>
+        <ul>
+            {% for f in files %}
+            <li>
+                <a href="{{ url_for('get_presigned_url', folder=folder, file_name=f) }}">{{ f }}</a>
+            </li>
+            {% endfor %}
+        </ul>
+    </main>
 </body>
 
 </html>
