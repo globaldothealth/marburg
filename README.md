@@ -8,6 +8,21 @@ Our first line list was published on March 30th, 2023 and is based on data up to
 
 There may be discrepancies and data remains limited at this stage of the outbreak. Should you find additional detail or have comments about the accuracy of information supplied here please address questions to info@global.health.
 
+## Getting the data
+
+**Python**
+
+```python
+import pandas as pd
+df = pd.read_csv("https://l66noa47nk.execute-api.eu-central-1.amazonaws.com/web/url?folder=&file_name=latest.csv")
+```
+
+**R**
+
+```R
+df <- read.csv("https://l66noa47nk.execute-api.eu-central-1.amazonaws.com/web/url?folder=&file_name=latest.csv")
+```
+
 ## Data curation
 This section is an overview of the data curation process, a discussion about limitations and assumptions.
 
