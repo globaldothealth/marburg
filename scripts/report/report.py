@@ -44,7 +44,9 @@ S3 = boto3.resource("s3", endpoint_url=os.getenv("LOCALSTACK_URL"))
 S3_BUCKET = os.getenv("S3_BUCKET", "marburg-gh")
 S3_BUCKET_REPORT = os.getenv("S3_BUCKET_REPORT", "www.marburg.global.health")
 
-PRIMARY_COLOR = "#007AEC"
+GREEN_PRIMARY_COLOR = "#0E7569"
+BLUE_PRIMARY_COLOR = "#007AEC"
+PRIMARY_COLOR = GREEN_PRIMARY_COLOR
 SECONDARY_COLOR = "#00C6AF"
 BG_COLOR = "#ECF3F0"
 GRID_COLOR = "#DEDEDE"
@@ -111,7 +113,6 @@ def get_age_bin_data(df: pd.DataFrame) -> pd.DataFrame:
 def get_delays(
     df: pd.DataFrame, target_col: str, onset_col: str = "Date_onset"
 ) -> pd.Series:
-
     both = df[
         df[target_col].str.fullmatch(REGEX_DATE)
         & df[onset_col].str.fullmatch(REGEX_DATE)
@@ -210,6 +211,7 @@ def plot_epicurve(df: pd.DataFrame, cumulative: bool = True):
                 y=data.Cumulative_cases,
                 name="Cumulative cases",
                 line_color=PRIMARY_COLOR,
+                line_width=3,
             ),
         )
     else:
@@ -233,7 +235,12 @@ def plot_epicurve(df: pd.DataFrame, cumulative: bool = True):
         title_font_family=TITLE_FONT,
         gridcolor=GRID_COLOR,
     )
-    fig.update_layout(plot_bgcolor=BG_COLOR, font_family=FONT, paper_bgcolor=BG_COLOR)
+    fig.update_layout(
+        plot_bgcolor=BG_COLOR,
+        font_family=FONT,
+        paper_bgcolor=BG_COLOR,
+        hoverlabel_font_family=FONT,
+    )
     return fig
 
 
@@ -265,6 +272,7 @@ def plot_delay_distribution(
         font_family=FONT,
         title=index,
         title_font_family=TITLE_FONT,
+        hoverlabel_font_family=FONT,
         bargap=0.2,
     )
     fig.update_xaxes(
@@ -283,7 +291,6 @@ def plot_delay_distribution(
 
 
 def plot_age_gender(df: pd.DataFrame):
-
     df = get_age_bin_data(df)
     fig = go.Figure()
     vals = {}
@@ -315,6 +322,7 @@ def plot_age_gender(df: pd.DataFrame):
             bargap=0.1,
             template="plotly_white",
             font_family=FONT,
+            hoverlabel_font_family=FONT,
             plot_bgcolor=BG_COLOR,
             paper_bgcolor=BG_COLOR,
         )
@@ -338,7 +346,7 @@ def plot_age_gender(df: pd.DataFrame):
             name="female",
             text=-female_binvals.astype("int"),
             hoverinfo="text",
-            marker=dict(color=PRIMARY_COLOR),
+            marker=dict(color=BLUE_PRIMARY_COLOR),
         )
     )
 
