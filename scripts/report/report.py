@@ -46,6 +46,8 @@ S3_BUCKET_REPORT = os.getenv("S3_BUCKET_REPORT", "www.marburg.global.health")
 
 PRIMARY_COLOR = "#007AEC"
 SECONDARY_COLOR = "#00C6AF"
+BG_COLOR = "#ECF3F0"
+GRID_COLOR = "#DEDEDE"
 
 
 @cache
@@ -217,13 +219,18 @@ def plot_epicurve(df: pd.DataFrame, cumulative: bool = True):
             ),
         )
 
-    fig.update_xaxes(title_text="Date of symptom onset", title_font_family=TITLE_FONT)
+    fig.update_xaxes(
+        title_text="Date of symptom onset",
+        title_font_family=TITLE_FONT,
+        gridcolor=GRID_COLOR,
+    )
 
     fig.update_yaxes(
         title_text="Cumulative cases" if cumulative else "Cases",
         title_font_family=TITLE_FONT,
+        gridcolor=GRID_COLOR,
     )
-    fig.update_layout(plot_bgcolor="white", font_family=FONT)
+    fig.update_layout(plot_bgcolor=BG_COLOR, font_family=FONT, paper_bgcolor=BG_COLOR)
     return fig
 
 
@@ -250,14 +257,24 @@ def plot_delay_distribution(
         color_discrete_sequence=[PRIMARY_COLOR],
     )
     fig.update_layout(
-        plot_bgcolor="white",
+        plot_bgcolor=BG_COLOR,
+        paper_bgcolor=BG_COLOR,
         font_family=FONT,
         title=index,
         title_font_family=TITLE_FONT,
         bargap=0.2,
     )
-    fig.update_xaxes(title_font_family=TITLE_FONT)
-    fig.update_yaxes(title_font_family=TITLE_FONT)
+    fig.update_xaxes(
+        title_font_family=TITLE_FONT,
+        gridcolor=GRID_COLOR,
+        linecolor=GRID_COLOR,
+        linewidth=3,
+    )
+    fig.update_yaxes(
+        title_font_family=TITLE_FONT,
+        gridcolor=GRID_COLOR,
+        showline=False,
+    )
 
     return fig
 
@@ -279,13 +296,15 @@ def plot_age_gender(df: pd.DataFrame):
     nearest = ((max_binval // 5) + 1) * 5
     ticks = [-nearest, -nearest / 2, 0, nearest / 2, nearest]
 
-    fig.update_yaxes(title="Age", title_font_family=TITLE_FONT)
+    fig.update_yaxes(title="Age", title_font_family=TITLE_FONT, gridcolor=GRID_COLOR)
     fig.update_xaxes(
         range=[-nearest, nearest],
         tickvals=ticks,
         ticktext=list(map(abs, ticks)),
         title="Counts",
         title_font_family=TITLE_FONT,
+        gridcolor=GRID_COLOR,
+        zeroline=False,
     )
     fig.update_layout(
         dict(
@@ -293,6 +312,8 @@ def plot_age_gender(df: pd.DataFrame):
             bargap=0.1,
             template="plotly_white",
             font_family=FONT,
+            plot_bgcolor=BG_COLOR,
+            paper_bgcolor=BG_COLOR,
         )
     )
 
