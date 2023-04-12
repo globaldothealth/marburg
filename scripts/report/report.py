@@ -88,6 +88,9 @@ def name_bin(bin_idx: int) -> str:
 
 def get_age_bin_data(df: pd.DataFrame) -> pd.DataFrame:
     confirmed = df[df.Case_status == "confirmed"][["Age", "Gender"]]
+    confirmed["Gender"] = confirmed.Gender.apply(
+        lambda x: x.strip() if isinstance(x, str) else x
+    )
     age_gender = (
         confirmed.groupby(["Age", "Gender"])
         .size()
