@@ -19,6 +19,7 @@ from dateutil.parser import ParserError
 import plotly.graph_objects as go
 import plotly.io
 import plotly.express as px
+from plotly.subplots import make_subplots
 
 
 pd.options.mode.chained_assignment = None
@@ -27,6 +28,7 @@ REGEX_DATE = r"^202\d-[0,1]\d-[0-3]\d"
 OVERRIDES = {}
 FONT = "Inter"
 TITLE_FONT = "mabry-regular-pro"
+LEGEND_FONT_SIZE = 14
 AGE_BINS = [
     (0, 0),
     (1, 9),
@@ -43,6 +45,7 @@ AGE_BINS = [
 S3 = boto3.resource("s3", endpoint_url=os.getenv("LOCALSTACK_URL"))
 S3_BUCKET = os.getenv("S3_BUCKET", "marburg-gh")
 S3_BUCKET_REPORT = os.getenv("S3_BUCKET_REPORT", "www.marburg.global.health")
+S3_AGGREGATES = os.getenv("S3_AGGREGATES", "marburg-aggregates")
 
 GREEN_PRIMARY_COLOR = "#0E7569"
 BLUE_PRIMARY_COLOR = "#007AEC"
@@ -52,13 +55,54 @@ BG_COLOR = "#ECF3F0"
 GRID_COLOR = "#DEDEDE"
 
 
+def get_data_with_estimated_onset(df: pd.DataFrame) -> pd.DataFrame:
+    """Infers the onset date by using the mean delay between onset and
+    hospitalisation or onset and death from records that have both. Then apply
+    the delay to those where onset is missing but either hospitalisation or
+    death date is known."""
+
+    logging.info(
+        "Mean delay to consult/hospitalization: %s",
+        delay_to_consult_hosp := datetime.timedelta(
+            days=get_delays(df, "Date_of_first_consult").mean().days
+        ),
+    )
+    logging.info(
+        "Mean delay to death: %s",
+        delay_death := datetime.timedelta(
+            days=get_delays(df, "Date_death").mean().days
+        ),
+    )
+
+    def estimate_onset(row):
+        if isinstance(row.Date_onset, str) and "NA" not in row.Date_onset:
+            return pd.to_datetime(row.Date_onset)
+        if isinstance(row.Date_death, str) and "NA" not in row.Date_death:
+            return pd.to_datetime(row.Date_death) - delay_death
+        if (
+            isinstance(row.Date_of_first_consult, str)
+            and "NA" not in row.Date_of_first_consult
+        ):
+            return pd.to_datetime(row.Date_of_first_consult) - delay_to_consult_hosp
+
+    df["Date_onset"] = df.apply(estimate_onset, axis=1)
+    return df
+
+
+def fetch_data_local(filename: str, estimate_onset: bool = True) -> pd.DataFrame:
+    df = pd.read_csv(filename, na_values=["NK", "N/K"])
+    return df if not estimate_onset else get_data_with_estimated_onset(df)
+
+
 @cache
-def fetch_data_s3(key: str, bucket_name: str = S3_BUCKET) -> pd.DataFrame:
+def fetch_data_s3(
+    key: str, bucket_name: str = S3_BUCKET, estimate_onset: bool = True
+) -> pd.DataFrame:
     """Fetches data from a S3 bucket and reads into a dataframe"""
 
     with tempfile.NamedTemporaryFile() as tmp:
         S3.Object(bucket_name, key).download_file(tmp.name)
-        return pd.read_csv(tmp.name, na_values=["NK", "N/K"])
+        return fetch_data_local(tmp.name, estimate_onset)
 
 
 def get_age_bins(age: str) -> range:
@@ -114,8 +158,10 @@ def get_delays(
     df: pd.DataFrame, target_col: str, onset_col: str = "Date_onset"
 ) -> pd.Series:
     both = df[
-        df[target_col].str.fullmatch(REGEX_DATE)
-        & df[onset_col].str.fullmatch(REGEX_DATE)
+        ~pd.isna(df[target_col])
+        & ~pd.isna(df[onset_col])
+        & df[target_col].astype(str).str.fullmatch(REGEX_DATE)
+        & df[onset_col].astype(str).str.fullmatch(REGEX_DATE)
     ]
     try:
         both[target_col] = pd.to_datetime(both[target_col])
@@ -127,39 +173,7 @@ def get_delays(
 
 
 def get_epicurve(df: pd.DataFrame, cumulative: bool = True) -> pd.DataFrame:
-    """Estimates epidemic curve (number of cases by date of symptom onset)
-
-    Infers the onset date by using the mean delay between onset and
-    hospitalisation or onset and death from records that have both. Then apply
-    the delay to those where onset is missing but either hospitalisation or
-    death date is known.
-    """
-    df = df[df.Case_status.isin(["confirmed", "probable"])]
-    logging.info(
-        "Mean delay to consult/hospitalization: %s",
-        delay_to_consult_hosp := datetime.timedelta(
-            days=get_delays(df, "Date_of_first_consult").mean().days
-        ),
-    )
-    logging.info(
-        "Mean delay to death: %s",
-        delay_death := datetime.timedelta(
-            days=get_delays(df, "Date_death").mean().days
-        ),
-    )
-
-    def estimate_onset(row):
-        if isinstance(row.Date_onset, str) and "NA" not in row.Date_onset:
-            return pd.to_datetime(row.Date_onset)
-        if isinstance(row.Date_death, str) and "NA" not in row.Date_death:
-            return pd.to_datetime(row.Date_death) - delay_death
-        if (
-            isinstance(row.Date_of_first_consult, str)
-            and "NA" not in row.Date_of_first_consult
-        ):
-            return pd.to_datetime(row.Date_of_first_consult) - delay_to_consult_hosp
-
-    df["Date_onset"] = df.apply(estimate_onset, axis=1)
+    """Estimates epidemic curve (number of cases by date of symptom onset)"""
     grouped_by_onset = df[~pd.isna(df.Date_onset)].groupby("Date_onset").size()
     if not cumulative:
         return (
@@ -189,6 +203,99 @@ def get_counts(df: pd.DataFrame) -> dict[str, int]:
             (~confirmed.Age.isna()) & (~confirmed.Gender.isna()),
         ),
     }
+
+
+def get_timeseries_location_status(
+    df: pd.DataFrame, fill_index: bool = False
+) -> pd.DataFrame:
+    "Returns a time series case dataset (number of cases by location by date stratified by confirmed and probable)"
+    df = df[
+        df.Case_status.isin(["confirmed", "probable"])
+        & ~pd.isna(df.Date_onset)
+        & ~pd.isna(df.Location_District)
+    ]
+    locations = sorted(set(df.Location_District))
+    mindate, maxdate = df.Date_onset.min(), df.Date_onset.max()
+
+    def timeseries_for_location(location: str) -> pd.DataFrame:
+        counts = (
+            df[df.Location_District == location]
+            .groupby(["Date_onset", "Case_status"])
+            .size()
+            .reset_index()
+            .pivot(index="Date_onset", columns="Case_status", values=0)
+            .fillna(0)
+            .astype(int)
+        )
+        if fill_index:
+            counts = counts.reindex(
+                pd.date_range(mindate, maxdate), fill_value=0
+            ).cumsum()
+        else:
+            counts = counts.cumsum()
+        counts["Location_District"] = location
+        return counts
+
+    timeseries = pd.concat(map(timeseries_for_location, locations)).fillna(0)
+    for status in ["confirmed", "probable"]:
+        timeseries[status] = timeseries[status].astype(int)
+    return timeseries.reset_index(names="Date_onset")
+
+
+def plot_timeseries_location_status(df: pd.DataFrame, columns: int = 3):
+    df = get_timeseries_location_status(df, fill_index=True)
+    locations = sorted(set(df.Location_District))
+
+    fig = make_subplots(
+        rows=2, cols=3, subplot_titles=locations, shared_yaxes=True, shared_xaxes=True
+    )
+
+    for i, location in enumerate(locations):
+        location_data = df[df.Location_District == location]
+        cur_row, cur_col = i // columns + 1, i % columns + 1
+        fig.add_trace(
+            go.Scatter(
+                x=location_data.Date_onset,
+                y=location_data.confirmed,
+                name="confirmed",
+                line_color=PRIMARY_COLOR,
+                line_width=3,
+                showlegend=not bool(i),
+            ),
+            row=cur_row,
+            col=cur_col,
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=location_data.Date_onset,
+                y=location_data.probable,
+                name="probable",
+                line_color=SECONDARY_COLOR,
+                line_width=3,
+                showlegend=not bool(i),
+            ),
+            row=cur_row,
+            col=cur_col,
+        )
+    fig.update_yaxes(
+        range=[0, max(df.confirmed.max(), df.probable.max()) + 1],
+        gridcolor=GRID_COLOR,
+    )
+    fig.update_xaxes(
+        gridcolor=GRID_COLOR,
+    )
+    fig.update_layout(
+        plot_bgcolor=BG_COLOR,
+        font_family=FONT,
+        paper_bgcolor=BG_COLOR,
+        hoverlabel_font_family=FONT,
+        legend_font_family=TITLE_FONT,
+        legend_font_size=LEGEND_FONT_SIZE,
+    )
+    for annotation in fig["layout"]["annotations"]:
+        annotation["font"] = dict(family=TITLE_FONT, size=LEGEND_FONT_SIZE + 2)
+
+    return fig
 
 
 def render(template: Path, variables: dict[str, Any]) -> str:
@@ -325,6 +432,8 @@ def plot_age_gender(df: pd.DataFrame):
             hoverlabel_font_family=FONT,
             plot_bgcolor=BG_COLOR,
             paper_bgcolor=BG_COLOR,
+            legend_font_family=TITLE_FONT,
+            legend_font_size=LEGEND_FONT_SIZE,
         )
     )
 
@@ -408,6 +517,11 @@ def build(
 
     var.update(get_counts(df))
     var.update(render_figure(plot_epicurve(df), "embed_epicurve"))
+    var.update(
+        render_figure(
+            plot_timeseries_location_status(df), "embed_epicurve_location_status"
+        )
+    )
     var.update(render_figure(plot_age_gender(df), "embed_age_gender"))
     var.update(
         render_figure(

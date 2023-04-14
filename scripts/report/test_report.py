@@ -19,10 +19,23 @@ from report import (
     get_counts,
     name_bin,
     build,
+    fetch_data_local,
+    get_timeseries_location_status,
+    get_data_with_estimated_onset,
 )
 
 CSV_DATA = Path(__file__).with_name("test_data.csv").read_text(encoding="utf-8")
-DATA = pd.read_csv(io.StringIO(CSV_DATA))
+DATA = fetch_data_local(Path(__file__).with_name("test_data.csv"), estimate_onset=False)
+
+EXPECTED_TIMESERIES_LOCATION_STATUS = """Date_onset,confirmed,probable,Location_District
+2023-02-06,0,1,Bata
+2023-03-05,1,1,Bata
+2023-01-13,0,1,Ebiebyin
+2023-03-29,1,1,Ebiebyin
+2023-01-05,1,0,Nsoc Nsomo
+2023-02-19,2,0,Nsoc Nsomo
+2023-02-11,1,0,Nsork
+"""
 
 
 @pytest.mark.parametrize(
@@ -61,6 +74,7 @@ def test_get_delays(column, expected_delay_series):
 
 
 def test_get_epicurve():
+    epicurve = get_epicurve(get_data_with_estimated_onset(DATA))
     dates = [
         "2023-" + md
         for md in ["01-05", "01-13", "02-06", "02-11", "02-19", "03-05", "03-29"]
@@ -69,7 +83,7 @@ def test_get_epicurve():
         {"Date_onset": dates, "Cumulative_cases": list(range(1, 8))}
     )
     expected["Date_onset"] = pd.to_datetime(expected.Date_onset)
-    assert get_epicurve(DATA).equals(expected)
+    assert epicurve.equals(expected)
 
 
 def test_get_counts():
@@ -84,6 +98,13 @@ def test_get_counts():
 def get_contents(file_name: str, bucket_name: str = S3_BUCKET) -> str:
     obj = S3.Object(bucket_name, file_name)
     return obj.get()["Body"].read().decode("utf-8")
+
+
+def test_get_timeseries_location_status():
+    assert (
+        get_timeseries_location_status(DATA).to_csv(index=False)
+        == EXPECTED_TIMESERIES_LOCATION_STATUS
+    )
 
 
 @pytest.mark.skipif(
