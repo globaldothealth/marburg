@@ -10,6 +10,7 @@ services:
       LOCALSTACK_URL: "http://localstack:4566"
       S3_BUCKET: "source"
       S3_BUCKET_REPORT: "report"
+      S3_AGGREGATES: "aggregates"
       AWS_ACCESS_KEY_ID: "fake"
       AWS_SECRET_ACCESS_KEY: "fake"
   localstack:
