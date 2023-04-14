@@ -22,10 +22,15 @@ fields:
       interpretation.
     required: true
 
-  - name: Location
+  - name: Location_Province
     type: string
-    description: Country subdivision where case was reported
-    examples: [Islington, Croydon]
+    description: Province where case was reported
+    examples: [Litoral, Kie-Ntem]
+
+  - name: Location_District
+    type: string
+    description: District where case was reported
+    examples: [Bata, Ebibeyin]
 
   - name: Country
     type: string
@@ -46,6 +51,10 @@ fields:
   - name: Gender
     type: male | female | other
     description: Gender of the individual
+
+  - name: Healthcare_worker
+    type: Y | N
+    description: Whether individual is healthcare worker
 
   - name: Occupation
     type: string
@@ -75,10 +84,6 @@ fields:
   - name: Contact_with_case
     type: Y | N | NA
     Description: Has the individual had contact with a confirmed/ probable/ suspected case (Y=Yes, N=No, NA=Not applicable)?
-    
-  - name: Contact_ID
-    type: integer
-    description: If specified, is the case ID from which this patient contracted the virus
 
   - name: Source
     type: url
