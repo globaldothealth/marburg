@@ -52,6 +52,7 @@ BLUE_PRIMARY_COLOR = "#007AEC"
 PRIMARY_COLOR = GREEN_PRIMARY_COLOR
 SECONDARY_COLOR = "#00C6AF"
 BG_COLOR = "#ECF3F0"
+FG_COLOR = "#1E1E1E"
 GRID_COLOR = "#DEDEDE"
 
 
@@ -293,7 +294,9 @@ def plot_timeseries_location_status(df: pd.DataFrame, columns: int = 3):
         legend_font_size=LEGEND_FONT_SIZE,
     )
     for annotation in fig["layout"]["annotations"]:
-        annotation["font"] = dict(family=TITLE_FONT, size=LEGEND_FONT_SIZE + 2)
+        annotation["font"] = dict(
+            family=TITLE_FONT, size=LEGEND_FONT_SIZE + 2, color=FG_COLOR
+        )
 
     return fig
 
@@ -334,12 +337,14 @@ def plot_epicurve(df: pd.DataFrame, cumulative: bool = True):
     fig.update_xaxes(
         title_text="Date of symptom onset",
         title_font_family=TITLE_FONT,
+        title_font_color=FG_COLOR,
         gridcolor=GRID_COLOR,
     )
 
     fig.update_yaxes(
         title_text="Cumulative cases" if cumulative else "Cases",
         title_font_family=TITLE_FONT,
+        title_font_color=FG_COLOR,
         gridcolor=GRID_COLOR,
     )
     fig.update_layout(
@@ -378,6 +383,7 @@ def plot_delay_distribution(
         paper_bgcolor=BG_COLOR,
         font_family=FONT,
         title=index,
+        title_font_color=FG_COLOR,
         title_font_family=TITLE_FONT,
         hoverlabel_font_family=FONT,
         bargap=0.2,
@@ -386,10 +392,12 @@ def plot_delay_distribution(
         title_font_family=TITLE_FONT,
         gridcolor=GRID_COLOR,
         linecolor=GRID_COLOR,
+        title_font_color=FG_COLOR,
         linewidth=3,
     )
     fig.update_yaxes(
         title_font_family=TITLE_FONT,
+        title_font_color=FG_COLOR,
         gridcolor=GRID_COLOR,
         showline=False,
     )
@@ -421,6 +429,7 @@ def plot_age_gender(df: pd.DataFrame):
         title="Counts",
         title_font_family=TITLE_FONT,
         gridcolor=GRID_COLOR,
+        title_font_color=FG_COLOR,
         zeroline=False,
     )
     fig.update_layout(
