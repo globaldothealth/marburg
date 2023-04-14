@@ -112,8 +112,12 @@ def test_get_timeseries_location_status():
     reason="Running e2e tests outside of mock environment disabled",
 )
 def test_e2e():
-    store_s3(CSV_DATA, f"archive/{datetime.datetime.today()}.csv")
-    store_s3(CSV_DATA, "latest.csv")
+    store_s3(
+        CSV_DATA,
+        ["latest.csv", f"archive/{datetime.datetime.today()}.csv"],
+        bucket_name=S3_BUCKET,
+        content_type="text/csv",
+    )
 
     today = datetime.datetime.today().date().isoformat()
     assert get_contents("latest.csv") == CSV_DATA

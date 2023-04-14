@@ -472,15 +472,20 @@ def plot_age_gender(df: pd.DataFrame):
 
 
 def store_s3(
-    data: str, key: str, bucket_name: str = S3_BUCKET, content_type="text/html"
+    data: str,
+    key: str | list[str],
+    bucket_name: str,
+    content_type: str,
 ):
+    keys = [key] if isinstance(key, str) else key
     if not os.getenv("SKIP_UPLOAD"):
-        logging.info(f"Uploading data to s3://{bucket_name}/{key}")
-        try:
-            S3.Object(bucket_name, key).put(Body=data, ContentType=content_type)
-        except Exception:
-            logging.exception("An exception occurred while trying to upload files")
-            raise
+        for k in keys:
+            logging.info(f"Uploading data to s3://{bucket_name}/{k}")
+            try:
+                S3.Object(bucket_name, k).put(Body=data, ContentType=content_type)
+            except Exception:
+                logging.exception("An exception occurred while trying to upload files")
+                raise
 
 
 def invalidate_cache(
@@ -564,17 +569,14 @@ def build(
         sort_keys=True,
     )
 
-    store_s3(
-        report_data,
-        "index.html",
-        bucket_name=S3_BUCKET_REPORT,
-    )
-    # also write locally to enable preview
+    # write locally to enable preview
     Path("report.html").write_text(report_data)
+
     store_s3(
         report_data,
-        f"{datetime.datetime.today().date()}.html",
+        ["index.html", f"{date}.html"],
         bucket_name=S3_BUCKET_REPORT,
+        content_type="text/html",
     )
     store_s3(
         metadata,
@@ -584,6 +586,18 @@ def build(
     )
     if distribution_id := os.getenv("CLOUDFRONT_DISTRIBUTION"):
         invalidate_cache(distribution_id)
+
+    # save timeseries to aggregates
+    timeseries_location_status = get_timeseries_location_status(df)
+    store_s3(
+        timeseries_location_status.to_csv(index=False),
+        [
+            "timeseries-location-status/latest.csv",
+            f"timeseries-location-status/{date}.csv",
+        ],
+        bucket_name=S3_AGGREGATES,
+        content_type="text/csv",
+    )
 
 
 if __name__ == "__main__":

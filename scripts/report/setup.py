@@ -9,6 +9,7 @@ import requests
 LOCALSTACK_URL = os.environ.get("AWS_ENDPOINT", "http://localstack:4566")
 S3_BUCKET = os.environ.get("S3_BUCKET", "source")
 S3_BUCKET_REPORT = os.environ.get("S3_BUCKET_REPORT", "report")
+S3_AGGREGATES = os.environ.get("S3_AGGREGATES", "aggregates")
 
 MAX_ATTEMPTS = 42
 WAIT_TIME = 5
@@ -42,4 +43,5 @@ if __name__ == "__main__":
     wait_for_localstack()
     create_bucket(S3_BUCKET)
     create_bucket(S3_BUCKET_REPORT)
+    create_bucket(S3_AGGREGATES)
     logging.info("Done")
