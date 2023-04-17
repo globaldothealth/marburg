@@ -62,6 +62,7 @@ def get_data_with_estimated_onset(df: pd.DataFrame) -> pd.DataFrame:
     the delay to those where onset is missing but either hospitalisation or
     death date is known."""
 
+    df = df.copy()
     logging.info(
         "Mean delay to consult/hospitalization: %s",
         delay_to_consult_hosp := datetime.timedelta(
@@ -90,20 +91,18 @@ def get_data_with_estimated_onset(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def fetch_data_local(filename: str, estimate_onset: bool = True) -> pd.DataFrame:
+def fetch_data_local(filename: str) -> pd.DataFrame:
     df = pd.read_csv(filename, na_values=["NK", "N/K"])
-    return df if not estimate_onset else get_data_with_estimated_onset(df)
+    return get_data_with_estimated_onset(df), df
 
 
 @cache
-def fetch_data_s3(
-    key: str, bucket_name: str = S3_BUCKET, estimate_onset: bool = True
-) -> pd.DataFrame:
+def fetch_data_s3(key: str, bucket_name: str = S3_BUCKET) -> pd.DataFrame:
     """Fetches data from a S3 bucket and reads into a dataframe"""
 
     with tempfile.NamedTemporaryFile() as tmp:
         S3.Object(bucket_name, key).download_file(tmp.name)
-        return fetch_data_local(tmp.name, estimate_onset)
+        return fetch_data_local(tmp.name)
 
 
 def get_age_bins(age: str) -> range:
@@ -158,6 +157,7 @@ def get_age_bin_data(df: pd.DataFrame) -> pd.DataFrame:
 def get_delays(
     df: pd.DataFrame, target_col: str, onset_col: str = "Date_onset"
 ) -> pd.Series:
+    df = df.copy()
     both = df[
         ~pd.isna(df[target_col])
         & ~pd.isna(df[onset_col])
@@ -521,7 +521,7 @@ def build(
         logging.info(f"Found overrides for {date}")
 
     try:
-        df = fetch_data_s3("latest.csv")
+        df, df_no_estimated_onset = fetch_data_s3("latest.csv")
     except ValueError as e:
         logging.error(e)
         sys.exit(1)
@@ -540,7 +540,11 @@ def build(
     var.update(
         render_figure(
             plot_delay_distribution(
-                df, "Date_of_first_consult", "Delay to consultation from onset", "A", 20
+                df_no_estimated_onset,
+                "Date_of_first_consult",
+                "Delay to consultation from onset",
+                "A",
+                25,
             ),
             "embed_delay_distribution_consult",
         )
@@ -548,7 +552,11 @@ def build(
     var.update(
         render_figure(
             plot_delay_distribution(
-                df, "Date_death", "Delay to death from onset", "B", 20
+                df_no_estimated_onset,
+                "Date_death",
+                "Delay to death from onset",
+                "B",
+                25,
             ),
             "embed_delay_distribution_death",
         )

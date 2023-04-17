@@ -1,4 +1,3 @@
-import io
 import os
 import datetime
 from pathlib import Path
@@ -25,7 +24,7 @@ from report import (
 )
 
 CSV_DATA = Path(__file__).with_name("test_data.csv").read_text(encoding="utf-8")
-DATA = fetch_data_local(Path(__file__).with_name("test_data.csv"), estimate_onset=False)
+DATA_ESTIMATED_ONSET, DATA = fetch_data_local(Path(__file__).with_name("test_data.csv"))
 
 EXPECTED_TIMESERIES_LOCATION_STATUS = """Date_onset,confirmed,probable,Location_District
 2023-02-06,0,1,Bata
@@ -102,7 +101,7 @@ def get_contents(file_name: str, bucket_name: str = S3_BUCKET) -> str:
 
 def test_get_timeseries_location_status():
     assert (
-        get_timeseries_location_status(DATA).to_csv(index=False)
+        get_timeseries_location_status(DATA_ESTIMATED_ONSET).to_csv(index=False)
         == EXPECTED_TIMESERIES_LOCATION_STATUS
     )
 
