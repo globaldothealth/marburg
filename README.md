@@ -17,7 +17,7 @@ import pandas as pd
 df = pd.read_csv("https://l66noa47nk.execute-api.eu-central-1.amazonaws.com/web/url?folder=&file_name=latest.csv")
 
 # aggregate timeseries data by location and status
-ts = pd.read_csv("http://marburg-aggregates.s3.eu-central-1.amazonaws.com/timeseries-location-status/latest.csv")
+ts = pd.read_csv("https://marburg-aggregates.s3.eu-central-1.amazonaws.com/timeseries-location-status/latest.csv")
 ```
 
 **R**
@@ -26,7 +26,7 @@ ts = pd.read_csv("http://marburg-aggregates.s3.eu-central-1.amazonaws.com/timese
 df <- read.csv("https://l66noa47nk.execute-api.eu-central-1.amazonaws.com/web/url?folder=&file_name=latest.csv")
 
 # aggregate timeseries data by location and status
-ts <- read.csv("http://marburg-aggregates.s3.eu-central-1.amazonaws.com/timeseries-location-status/latest.csv")
+ts <- read.csv("https://marburg-aggregates.s3.eu-central-1.amazonaws.com/timeseries-location-status/latest.csv")
 ```
 
 ## Data curation
