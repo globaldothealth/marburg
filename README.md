@@ -2,7 +2,7 @@
 
 This repository contains dated records of curated Marburg case data from the 2023 outbreak in Equatorial Guinea. Data are curated from openly accessible sources only.
 
-Our latest data set and archives can be found [here](https://l66noa47nk.execute-api.eu-central-1.amazonaws.com/web).
+**[Latest data and archives](https://l66noa47nk.execute-api.eu-central-1.amazonaws.com/web)** | **[Summary report](https://www.marburg.global.health)**
 
 Our first line list was published on March 30th, 2023 and is based on data up to March 21st, 2023. As new data become available we are updating the line list. The line list is created directly from a report from the Ministerio de Sanidad y Bienestar Social de la República de Guinea Ecuatorial (https://guineasalud.org/).
 
