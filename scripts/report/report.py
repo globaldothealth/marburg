@@ -418,8 +418,8 @@ def plot_age_gender(df: pd.DataFrame):
 
     y = bin_names
     max_binval = max(-female_binvals.max(), male_binvals.max())
-    nearest = ((max_binval // 5) + 1) * 5
-    ticks = [-nearest, -nearest / 2, 0, nearest / 2, nearest]
+    nearest = int(((max_binval // 5) + 1) * 5)
+    ticks = np.linspace(-nearest, nearest, 2 * nearest + 1).astype(int)
 
     fig.update_yaxes(title="Age", title_font_family=TITLE_FONT, gridcolor=GRID_COLOR)
     fig.update_xaxes(
