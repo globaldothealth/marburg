@@ -9,6 +9,8 @@ services:
       DOCKERIZED: "absolutely"
       LOCALSTACK_URL: "http://localstack:4566"
       S3_BUCKET: "fake"
+      S3_FOLDER: "archive"
+      S3_FOLDER_PRIVATE: "private"
       DB_CONNECTION: "mongodb://mongo:27017"
       DATABASE_NAME: "marburg"
       GH_COLLECTION: "gh"
