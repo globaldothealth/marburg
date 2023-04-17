@@ -15,12 +15,18 @@ There may be discrepancies and data remains limited at this stage of the outbrea
 ```python
 import pandas as pd
 df = pd.read_csv("https://l66noa47nk.execute-api.eu-central-1.amazonaws.com/web/url?folder=&file_name=latest.csv")
+
+# aggregate timeseries data by location and status
+ts = pd.read_csv("http://marburg-aggregates.s3.eu-central-1.amazonaws.com/timeseries-location-status/latest.csv")
 ```
 
 **R**
 
 ```R
 df <- read.csv("https://l66noa47nk.execute-api.eu-central-1.amazonaws.com/web/url?folder=&file_name=latest.csv")
+
+# aggregate timeseries data by location and status
+ts <- read.csv("http://marburg-aggregates.s3.eu-central-1.amazonaws.com/timeseries-location-status/latest.csv")
 ```
 
 ## Data curation
