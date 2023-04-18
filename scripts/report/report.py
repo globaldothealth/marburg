@@ -181,8 +181,9 @@ def get_timeseries_location_status(
     df: pd.DataFrame, fill_index: bool = False
 ) -> pd.DataFrame:
     "Returns a time series case dataset (number of cases by location by date stratified by confirmed and probable)"
+    statuses = ["confirmed", "probable"]
     df = df[
-        df.Case_status.isin(["confirmed", "probable"])
+        df.Case_status.isin(statuses)
         & ~pd.isna(df.Date_onset_estimated)
         & ~pd.isna(df.Location_District)
     ]
@@ -200,17 +201,18 @@ def get_timeseries_location_status(
             .astype(int)
         )
         if fill_index:
-            counts = counts.reindex(
-                pd.date_range(mindate, maxdate), fill_value=0
-            ).cumsum()
-        else:
-            counts = counts.cumsum()
+            counts = counts.reindex(pd.date_range(mindate, maxdate), fill_value=0)
+        for status in set(statuses) - set(counts.columns):
+            counts[status] = 0
+        counts = counts.rename(columns={s: "daily_" + s for s in statuses})
+        for s in statuses:
+            counts["cumulative_" + s] = counts["daily_" + s].cumsum()
         counts["Location_District"] = location
         return counts
 
     timeseries = pd.concat(map(timeseries_for_location, locations)).fillna(0)
-    for status in ["confirmed", "probable"]:
-        timeseries[status] = timeseries[status].astype(int)
+    for col in ["daily_" + s for s in statuses] + ["cumulative_" + s for s in statuses]:
+        timeseries[col] = timeseries[col].astype(int)
     return timeseries.reset_index(names="Date_onset_estimated")
 
 
@@ -228,7 +230,7 @@ def plot_timeseries_location_status(df: pd.DataFrame, columns: int = 3):
         fig.add_trace(
             go.Scatter(
                 x=location_data.Date_onset_estimated,
-                y=location_data.confirmed,
+                y=location_data.cumulative_confirmed,
                 name="confirmed",
                 line_color=PRIMARY_COLOR,
                 line_width=3,
@@ -239,8 +241,8 @@ def plot_timeseries_location_status(df: pd.DataFrame, columns: int = 3):
         )
         fig.add_trace(
             go.Scatter(
-                x=location_data.Date_onset,
-                y=location_data.probable,
+                x=location_data.Date_onset_estimated,
+                y=location_data.cumulative_probable,
                 name="probable",
                 line_color=SECONDARY_COLOR,
                 line_width=3,
@@ -250,7 +252,7 @@ def plot_timeseries_location_status(df: pd.DataFrame, columns: int = 3):
             col=cur_col,
         )
     fig.update_yaxes(
-        range=[0, max(df.confirmed.max(), df.probable.max()) + 1],
+        range=[0, max(df.cumulative_confirmed.max(), df.cumulative_probable.max()) + 1],
         gridcolor=GRID_COLOR,
     )
     fig.update_xaxes(
@@ -288,7 +290,7 @@ def plot_epicurve(df: pd.DataFrame, cumulative: bool = True):
     if cumulative:
         fig.add_trace(
             go.Scatter(
-                x=data.Date_onset,
+                x=data.Date_onset_estimated,
                 y=data.Cumulative_cases,
                 name="Cumulative cases",
                 line_color=PRIMARY_COLOR,
@@ -298,7 +300,7 @@ def plot_epicurve(df: pd.DataFrame, cumulative: bool = True):
     else:
         fig.add_trace(
             go.Scatter(
-                x=data.Date_onset,
+                x=data.Date_onset_estimated,
                 y=data.Num_cases,
                 name="Cases",
                 line_color=PRIMARY_COLOR,
