@@ -172,9 +172,16 @@ def store_private_data(data: pd.DataFrame):
 
 def data_to_db(data: pd.DataFrame):
     logging.info("Adding data to the database")
+    date_columns = ["Data_up_to"] + [
+        col
+        for col in INCLUDE_FIELDS_PRIVATE
+        if col in data.columns and col.startswith("Date_")
+    ]
     try:
         client = MongoClient(DB_CONNECTION)
         database = client[DATABASE_NAME]
+        for col in date_columns:
+            data[col] = data[col].where(data[col].notnull(), None).astype(str)
         for entry in data.to_dict("records"):
             find = {"ID": entry["ID"]}
             update = {"$set": entry}
