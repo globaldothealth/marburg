@@ -187,19 +187,29 @@ def get_timeseries_location_status(
         & ~pd.isna(df.Date_onset_estimated)
         & ~pd.isna(df.Location_District)
     ]
-    locations = sorted(set(df.Location_District))
+    locations = sorted(set(df.Location_District)) + [None]
     mindate, maxdate = df.Date_onset_estimated.min(), df.Date_onset_estimated.max()
 
-    def timeseries_for_location(location: str) -> pd.DataFrame:
-        counts = (
-            df[df.Location_District == location]
-            .groupby(["Date_onset_estimated", "Case_status"])
-            .size()
-            .reset_index()
-            .pivot(index="Date_onset_estimated", columns="Case_status", values=0)
-            .fillna(0)
-            .astype(int)
-        )
+    def timeseries_for_location(location: str | None) -> pd.DataFrame:
+        if location is None:
+            counts = (
+                df.groupby(["Date_onset_estimated", "Case_status"])
+                .size()
+                .reset_index()
+                .pivot(index="Date_onset_estimated", columns="Case_status", values=0)
+                .fillna(0)
+                .astype(int)
+            )
+        else:
+            counts = (
+                df[df.Location_District == location]
+                .groupby(["Date_onset_estimated", "Case_status"])
+                .size()
+                .reset_index()
+                .pivot(index="Date_onset_estimated", columns="Case_status", values=0)
+                .fillna(0)
+                .astype(int)
+            )
         if fill_index:
             counts = counts.reindex(pd.date_range(mindate, maxdate), fill_value=0)
         for status in set(statuses) - set(counts.columns):
@@ -207,7 +217,7 @@ def get_timeseries_location_status(
         counts = counts.rename(columns={s: "daily_" + s for s in statuses})
         for s in statuses:
             counts["cumulative_" + s] = counts["daily_" + s].cumsum()
-        counts["Location_District"] = location
+        counts["Location_District"] = location if location else "Total"
         return counts
 
     timeseries = pd.concat(map(timeseries_for_location, locations)).fillna(0)
@@ -218,7 +228,7 @@ def get_timeseries_location_status(
 
 def plot_timeseries_location_status(df: pd.DataFrame, columns: int = 3):
     df = get_timeseries_location_status(df, fill_index=True)
-    locations = sorted(set(df.Location_District))
+    locations = sorted(set(df.Location_District) - {"Total"})
 
     fig = make_subplots(
         rows=2, cols=3, subplot_titles=locations, shared_yaxes=True, shared_xaxes=True

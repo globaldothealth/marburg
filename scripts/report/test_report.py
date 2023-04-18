@@ -34,6 +34,13 @@ EXPECTED_TIMESERIES_LOCATION_STATUS = """Date_onset_estimated,daily_confirmed,da
 2023-01-05,1,0,1,0,Nsoc Nsomo
 2023-02-19,1,0,2,0,Nsoc Nsomo
 2023-02-11,1,0,1,0,Nsork
+2023-01-05,1,0,1,0,Total
+2023-01-13,0,1,1,1,Total
+2023-02-06,0,1,1,2,Total
+2023-02-11,1,0,2,2,Total
+2023-02-19,1,0,3,2,Total
+2023-03-05,1,0,4,2,Total
+2023-03-29,1,0,5,2,Total
 """
 
 
