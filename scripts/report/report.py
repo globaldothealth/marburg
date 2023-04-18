@@ -2,6 +2,7 @@
 Briefing report generator for Marburg 2023 outbreak
 """
 import os
+import re
 import sys
 import json
 import tempfile
@@ -56,54 +57,17 @@ FG_COLOR = "#1E1E1E"
 GRID_COLOR = "#DEDEDE"
 
 
-def get_data_with_estimated_onset(df: pd.DataFrame) -> pd.DataFrame:
-    """Infers the onset date by using the mean delay between onset and
-    hospitalisation or onset and death from records that have both. Then apply
-    the delay to those where onset is missing but either hospitalisation or
-    death date is known."""
-
-    logging.info(
-        "Mean delay to consult/hospitalization: %s",
-        delay_to_consult_hosp := datetime.timedelta(
-            days=get_delays(df, "Date_of_first_consult").mean().days
-        ),
-    )
-    logging.info(
-        "Mean delay to death: %s",
-        delay_death := datetime.timedelta(
-            days=get_delays(df, "Date_death").mean().days
-        ),
-    )
-
-    def estimate_onset(row):
-        if isinstance(row.Date_onset, str) and "NA" not in row.Date_onset:
-            return pd.to_datetime(row.Date_onset)
-        if isinstance(row.Date_death, str) and "NA" not in row.Date_death:
-            return pd.to_datetime(row.Date_death) - delay_death
-        if (
-            isinstance(row.Date_of_first_consult, str)
-            and "NA" not in row.Date_of_first_consult
-        ):
-            return pd.to_datetime(row.Date_of_first_consult) - delay_to_consult_hosp
-
-    df["Date_onset"] = df.apply(estimate_onset, axis=1)
-    return df
-
-
-def fetch_data_local(filename: str, estimate_onset: bool = True) -> pd.DataFrame:
-    df = pd.read_csv(filename, na_values=["NK", "N/K"])
-    return df if not estimate_onset else get_data_with_estimated_onset(df)
+def fetch_data_local(filename: str) -> pd.DataFrame:
+    return pd.read_csv(filename, na_values=["NK", "N/K"])
 
 
 @cache
-def fetch_data_s3(
-    key: str, bucket_name: str = S3_BUCKET, estimate_onset: bool = True
-) -> pd.DataFrame:
+def fetch_data_s3(key: str, bucket_name: str = S3_BUCKET) -> pd.DataFrame:
     """Fetches data from a S3 bucket and reads into a dataframe"""
 
     with tempfile.NamedTemporaryFile() as tmp:
         S3.Object(bucket_name, key).download_file(tmp.name)
-        return fetch_data_local(tmp.name, estimate_onset)
+        return fetch_data_local(tmp.name)
 
 
 def get_age_bins(age: str) -> range:
@@ -174,20 +138,27 @@ def get_delays(
 
 
 def get_epicurve(df: pd.DataFrame, cumulative: bool = True) -> pd.DataFrame:
-    """Estimates epidemic curve (number of cases by date of symptom onset)"""
-    grouped_by_onset = df[~pd.isna(df.Date_onset)].groupby("Date_onset").size()
+    """Returns epidemic curve - number of cases by (estimated) date of symptom onset"""
+    df["Date_onset_estimated"] = df.Date_onset_estimated.map(
+        lambda x: pd.to_datetime(x)
+        if isinstance(x, str) and re.match(REGEX_DATE, x)
+        else x
+    )
+    grouped_by_onset = (
+        df[~pd.isna(df.Date_onset_estimated)].groupby("Date_onset_estimated").size()
+    )
     if not cumulative:
         return (
             grouped_by_onset.sum()
             .reset_index()
-            .sort_values(by="Date_onset")
+            .sort_values(by="Date_onset_estimated")
             .rename({0: "Num_cases"}, axis=1)
         )
     else:
         return (
             grouped_by_onset.cumsum()
             .reset_index()
-            .sort_values(by="Date_onset")
+            .sort_values(by="Date_onset_estimated")
             .rename({0: "Cumulative_cases"}, axis=1)
         )
 
@@ -212,19 +183,19 @@ def get_timeseries_location_status(
     "Returns a time series case dataset (number of cases by location by date stratified by confirmed and probable)"
     df = df[
         df.Case_status.isin(["confirmed", "probable"])
-        & ~pd.isna(df.Date_onset)
+        & ~pd.isna(df.Date_onset_estimated)
         & ~pd.isna(df.Location_District)
     ]
     locations = sorted(set(df.Location_District))
-    mindate, maxdate = df.Date_onset.min(), df.Date_onset.max()
+    mindate, maxdate = df.Date_onset_estimated.min(), df.Date_onset_estimated.max()
 
     def timeseries_for_location(location: str) -> pd.DataFrame:
         counts = (
             df[df.Location_District == location]
-            .groupby(["Date_onset", "Case_status"])
+            .groupby(["Date_onset_estimated", "Case_status"])
             .size()
             .reset_index()
-            .pivot(index="Date_onset", columns="Case_status", values=0)
+            .pivot(index="Date_onset_estimated", columns="Case_status", values=0)
             .fillna(0)
             .astype(int)
         )
@@ -240,7 +211,7 @@ def get_timeseries_location_status(
     timeseries = pd.concat(map(timeseries_for_location, locations)).fillna(0)
     for status in ["confirmed", "probable"]:
         timeseries[status] = timeseries[status].astype(int)
-    return timeseries.reset_index(names="Date_onset")
+    return timeseries.reset_index(names="Date_onset_estimated")
 
 
 def plot_timeseries_location_status(df: pd.DataFrame, columns: int = 3):
@@ -256,7 +227,7 @@ def plot_timeseries_location_status(df: pd.DataFrame, columns: int = 3):
         cur_row, cur_col = i // columns + 1, i % columns + 1
         fig.add_trace(
             go.Scatter(
-                x=location_data.Date_onset,
+                x=location_data.Date_onset_estimated,
                 y=location_data.confirmed,
                 name="confirmed",
                 line_color=PRIMARY_COLOR,
