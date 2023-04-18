@@ -21,13 +21,12 @@ from report import (
     build,
     fetch_data_local,
     get_timeseries_location_status,
-    get_data_with_estimated_onset,
 )
 
 CSV_DATA = Path(__file__).with_name("test_data.csv").read_text(encoding="utf-8")
-DATA = fetch_data_local(Path(__file__).with_name("test_data.csv"), estimate_onset=False)
+DATA = fetch_data_local(Path(__file__).with_name("test_data.csv"))
 
-EXPECTED_TIMESERIES_LOCATION_STATUS = """Date_onset,confirmed,probable,Location_District
+EXPECTED_TIMESERIES_LOCATION_STATUS = """Date_onset_estimated,confirmed,probable,Location_District
 2023-02-06,0,1,Bata
 2023-03-05,1,1,Bata
 2023-01-13,0,1,Ebiebyin
@@ -74,15 +73,15 @@ def test_get_delays(column, expected_delay_series):
 
 
 def test_get_epicurve():
-    epicurve = get_epicurve(get_data_with_estimated_onset(DATA))
+    epicurve = get_epicurve(DATA)
     dates = [
         "2023-" + md
         for md in ["01-05", "01-13", "02-06", "02-11", "02-19", "03-05", "03-29"]
     ]
     expected = pd.DataFrame(
-        {"Date_onset": dates, "Cumulative_cases": list(range(1, 8))}
+        {"Date_onset_estimated": dates, "Cumulative_cases": list(range(1, 8))}
     )
-    expected["Date_onset"] = pd.to_datetime(expected.Date_onset)
+    expected["Date_onset_estimated"] = pd.to_datetime(expected.Date_onset_estimated)
     assert epicurve.equals(expected)
 
 
