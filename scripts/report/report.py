@@ -425,7 +425,9 @@ def plot_age_gender(df: pd.DataFrame):
             x=male_binvals,
             orientation="h",
             name="male",
-            hoverinfo="x",
+            hoverinfo="skip",
+            hovertemplate=None,
+            textposition="none",
             marker=dict(color=SECONDARY_COLOR),
         )
     )
@@ -436,7 +438,9 @@ def plot_age_gender(df: pd.DataFrame):
             orientation="h",
             name="female",
             text=-female_binvals.astype("int"),
-            hoverinfo="text",
+            hoverinfo="skip",
+            hovertemplate=None,
+            textposition="none",
             marker=dict(color=BLUE_PRIMARY_COLOR),
         )
     )
