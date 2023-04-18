@@ -135,7 +135,9 @@ def drop_private_fields(data):
 
 def get_private_list(data: pd.DataFrame):
     logging.info("Cleaning data and running through pipeline")
-    data_with_estimated_onset = get_data_with_estimated_onset(data[~pd.isna(data.ID)])
+    data_with_estimated_onset = get_data_with_estimated_onset(
+        data[~pd.isna(data.ID) & (data.ID != "")]
+    )
     return data_with_estimated_onset[
         [f for f in INCLUDE_FIELDS_PRIVATE if f in data_with_estimated_onset.columns]
     ]
