@@ -26,14 +26,14 @@ from report import (
 CSV_DATA = Path(__file__).with_name("test_data.csv").read_text(encoding="utf-8")
 DATA = fetch_data_local(Path(__file__).with_name("test_data.csv"))
 
-EXPECTED_TIMESERIES_LOCATION_STATUS = """Date_onset_estimated,confirmed,probable,Location_District
-2023-02-06,0,1,Bata
-2023-03-05,1,1,Bata
-2023-01-13,0,1,Ebiebyin
-2023-03-29,1,1,Ebiebyin
-2023-01-05,1,0,Nsoc Nsomo
-2023-02-19,2,0,Nsoc Nsomo
-2023-02-11,1,0,Nsork
+EXPECTED_TIMESERIES_LOCATION_STATUS = """Date_onset_estimated,daily_confirmed,daily_probable,cumulative_confirmed,cumulative_probable,Location_District
+2023-02-06,0,1,0,1,Bata
+2023-03-05,1,0,1,1,Bata
+2023-01-13,0,1,0,1,Ebiebyin
+2023-03-29,1,0,1,1,Ebiebyin
+2023-01-05,1,0,1,0,Nsoc Nsomo
+2023-02-19,1,0,2,0,Nsoc Nsomo
+2023-02-11,1,0,1,0,Nsork
 """
 
 
