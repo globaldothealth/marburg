@@ -2,6 +2,7 @@ import datetime
 import logging
 import os
 import sys
+import re
 
 import boto3
 import pandas as pd
@@ -105,19 +106,15 @@ def get_data_with_estimated_onset(df: pd.DataFrame) -> pd.DataFrame:
     )
 
     def estimate_onset(row):
-        if isinstance(row.Date_onset, str) and (
-            "NA" not in row.Date_onset or "NK" not in row.Date_onset
-        ):
+        if isinstance(row.Date_onset, str) and re.match(REGEX_DATE, row.Date_onset):
             return pd.to_datetime(row.Date_onset)
-        if isinstance(row.Date_death, str) and (
-            "NA" not in row.Date_death or "NK" not in row.Date_death
-        ):
+        if isinstance(row.Date_death, str) and re.match(REGEX_DATE, row.Date_death):
             return pd.to_datetime(row.Date_death) - delay_death
-        if (
-            isinstance(row.Date_of_first_consult, str)
-            and "NA" not in row.Date_of_first_consult
+        if isinstance(row.Date_of_first_consult, str) and re.match(
+            REGEX_DATE, row.Date_of_first_consult
         ):
             return pd.to_datetime(row.Date_of_first_consult) - delay_to_consult_hosp
+        return None
 
     df["Date_onset_estimated"] = df.apply(estimate_onset, axis=1)
     return df

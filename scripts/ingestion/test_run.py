@@ -30,7 +30,7 @@ PRIVATE_LIST_CSV = """ID,Case_status,Gender,Age,Date_onset,Date_onset_estimated,
 2,probable,female,40-46,2023-02-06,2023-02-06,,2023-02-14,Bata,2023-04-04,1
 3,confirmed,male,20,2023-02-19,2023-02-19,2023-02-25,,Nsoc Nsomo,2023-04-04,2
 4,confirmed,female,99,2023-01-05,2023-01-05,,2023-01-11,Nsoc Nsomo,2023-04-04,
-5,probable,male,65,,2023-01-13,,2023-01-19,Ebiebyin,2023-04-04,
+5,probable,male,65,NK,2023-01-13,,2023-01-19,Ebiebyin,2023-04-04,
 6,confirmed,female,59,,2023-03-29,2023-04-02,,Ebiebyin,2023-04-04,
 7,confirmed,male,0,2023-02-11,2023-02-11,2023-02-13,,Nsork,2023-04-04,
 """
@@ -40,7 +40,7 @@ PUBLIC_LIST_CSV = """ID,Case_status,Gender,Age,Date_onset,Date_onset_estimated,D
 2,probable,female,40-46,2023-02-06,2023-02-06,,2023-02-14,Bata,2023-04-04
 3,confirmed,male,20,2023-02-19,2023-02-19,2023-02-25,,Nsoc Nsomo,2023-04-04
 4,confirmed,female,99,2023-01-05,2023-01-05,,2023-01-11,Nsoc Nsomo,2023-04-04
-5,probable,male,65,,2023-01-13,,2023-01-19,Ebiebyin,2023-04-04
+5,probable,male,65,NK,2023-01-13,,2023-01-19,Ebiebyin,2023-04-04
 6,confirmed,female,59,,2023-03-29,2023-04-02,,Ebiebyin,2023-04-04
 7,confirmed,male,0,2023-02-11,2023-02-11,2023-02-13,,Nsork,2023-04-04
 """
