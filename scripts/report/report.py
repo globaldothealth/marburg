@@ -142,10 +142,15 @@ def get_epicurve(df: pd.DataFrame, cumulative: bool = True) -> pd.DataFrame:
     df["Date_onset_estimated"] = df.Date_onset_estimated.map(
         lambda x: pd.to_datetime(x)
         if isinstance(x, str) and re.match(REGEX_DATE, x)
-        else x
+        else None
     )
     grouped_by_onset = (
-        df[~pd.isna(df.Date_onset_estimated)].groupby("Date_onset_estimated").size()
+        df[
+            ~pd.isna(df.Date_onset_estimated)
+            & df.Case_status.isin(["confirmed", "probable"])
+        ]
+        .groupby("Date_onset_estimated")
+        .size()
     )
     if not cumulative:
         return (
@@ -262,7 +267,14 @@ def plot_timeseries_location_status(df: pd.DataFrame, columns: int = 3):
             col=cur_col,
         )
     fig.update_yaxes(
-        range=[0, max(df.cumulative_confirmed.max(), df.cumulative_probable.max()) + 1],
+        range=[
+            0,
+            max(
+                df[df.Location_District != "Total"].cumulative_confirmed.max(),
+                df[df.Location_District != "Total"].cumulative_probable.max(),
+            )
+            + 1,
+        ],
         gridcolor=GRID_COLOR,
     )
     fig.update_xaxes(
