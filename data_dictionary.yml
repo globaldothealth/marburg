@@ -1,4 +1,4 @@
-dictionary_last_modified: 2023-04-02
+dictionary_last_modified: 2023-04-18
 fields:
   - name: ID
     type: string
@@ -64,14 +64,21 @@ fields:
     type: iso8601date
     description: Date of onset of symptoms
 
+  - name: Date_onset_estimated
+    type: iso8601date
+    description: >
+      Estimated date of onset of symptoms.  Where date of onset is not
+      available, it is estimated from the date of first consult/hospitalisation
+      or date of death, by shifting the value by the delay distribution mean
+
   - name: Confirmation_method
     type: string
     description: Test used to confirm diagnosis 
     examples: ["RT-PCR"]
 
   - name: Outcome
-    type: recovered | alive | death | NA
-    description: Optional field that specifies outcome of the disease
+    type: recovered | alive | death | NK
+    description: Optional field that specifies outcome of the disease, NK=Not known
 
   - name: Date_death
     type: iso8601date
@@ -82,8 +89,8 @@ fields:
     description: Date of recovery
 
   - name: Contact_with_case
-    type: Y | N | NA
-    Description: Has the individual had contact with a confirmed/ probable/ suspected case (Y=Yes, N=No, NA=Not applicable)?
+    type: Y | N | NK
+    Description: Has the individual had contact with a confirmed/ probable/ suspected case (Y=Yes, N=No, NK=Not known)?
 
   - name: Source
     type: url
