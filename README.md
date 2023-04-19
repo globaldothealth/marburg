@@ -31,12 +31,12 @@ ts <- read.csv("https://marburg-aggregates.s3.eu-central-1.amazonaws.com/timeser
 
 ## Data curation
 
-UPDATE
-2023-04-19: Confirmed case counts are updated from MINSABS and WHO reporting. Location data for the first 15 confirmed cases is consistent with MINSABS reporting through the [Epidemiological update on 2023-04-16]( https://www.guineasalud.org/archivos/Informes/Informe16042023.pdf) [n=15. Bata 9; Ebibeyin 3; Evinayong 2; Nsork 1]. Confirmed case number 16 was added to our line-list using data from the [WHO Director-General media briefing](https://www.who.int/director-general/speeches/detail/who-director-general-s-opening-remarks-at-media-briefing-18-april-2023).
+UPDATE 2023-04-19: Confirmed case counts are updated from MINSABS and WHO reporting. Location data for the first 15 confirmed cases is consistent with MINSABS reporting through the [Epidemiological update on 2023-04-16]( https://www.guineasalud.org/archivos/Informes/Informe16042023.pdf) [n=15. Bata 9; Ebibeyin 3; Evinayong 2; Nsork 1]. Confirmed case number 16 was added to our line-list using data from the [WHO Director-General media briefing](https://www.who.int/director-general/speeches/detail/who-director-general-s-opening-remarks-at-media-briefing-18-april-2023).
 
 Probable cases (n=20) are included in our line-list using data from [MINSABS Official Statement No. 3, Page 7]( https://www.guineasalud.org/archivos/Ordenes/Comunicado3.pdf). WHO reported an update on [2023-04-15](https://www.who.int/emergencies/disease-outbreak-news/item/2023-DON459) increasing the probable count to 23. Global.health is working to reconcile our case and location data; however, due to the presentation of aggregated data in official reporting, we may be unable to update or continue to track probable case data in our line-list moving forward. 
 
 Three suspected cases, now discarded, are included in our line-list using data from [MINSABS Official Statement No. 3, Page 7]( https://www.guineasalud.org/archivos/Ordenes/Comunicado3.pdf). Suspected cases are not included in our line-list after this report.
+
 
 
 This section is an overview of the data curation process, a discussion about limitations and assumptions.
