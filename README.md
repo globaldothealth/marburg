@@ -37,8 +37,7 @@ Probable cases (n=20) are included in our line-list using data from [MINSABS Off
 
 Three suspected cases, now discarded, are included in our line-list using data from [MINSABS Official Statement No. 3, Page 7]( https://www.guineasalud.org/archivos/Ordenes/Comunicado3.pdf). Suspected cases are not included in our line-list after this report.
 
-
-
+---
 This section is an overview of the data curation process, a discussion about limitations and assumptions.
 
 The Marburg line-list is built by checking a collection of sources, listed here, which will be updated as new sources become available: https://github.com/globaldothealth/marburg/wiki. The original source(s) of information is provided for each line-list ID in our database. Data released from Ministerio de Sanidad y Bienestar Social de la República de Guinea Ecuatorial (MINSABS) has been our primary source of information (<https://guineasalud.org/>). Our line-list also includes publicly available data from the World Health Organization.
