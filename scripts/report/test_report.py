@@ -81,15 +81,18 @@ def test_get_delays(column, expected_delay_series):
 
 def test_get_epicurve():
     epicurve = get_epicurve(DATA)
-    dates = [
-        "2023-" + md
-        for md in ["01-05", "01-13", "02-06", "02-11", "02-19", "03-05", "03-29"]
-    ]
-    expected = pd.DataFrame(
-        {"Date_onset_estimated": dates, "Cumulative_cases": list(range(1, 8))}
+    assert (
+        epicurve.to_csv(index=False)
+        == """Date_onset_estimated,confirmed,probable
+2023-01-05,1,0
+2023-01-13,1,1
+2023-02-06,1,2
+2023-02-11,2,2
+2023-02-19,3,2
+2023-03-05,4,2
+2023-03-29,5,2
+"""
     )
-    expected["Date_onset_estimated"] = pd.to_datetime(expected.Date_onset_estimated)
-    assert epicurve.equals(expected)
 
 
 def test_get_counts():

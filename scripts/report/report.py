@@ -29,7 +29,7 @@ REGEX_DATE = r"^202\d-[0,1]\d-[0-3]\d"
 OVERRIDES = {}
 FONT = "Inter"
 TITLE_FONT = "mabry-regular-pro"
-LEGEND_FONT_SIZE = 14
+LEGEND_FONT_SIZE = 13
 AGE_BINS = [
     (0, 0),
     (1, 9),
@@ -144,28 +144,23 @@ def get_epicurve(df: pd.DataFrame, cumulative: bool = True) -> pd.DataFrame:
         if isinstance(x, str) and re.match(REGEX_DATE, x)
         else None
     )
-    grouped_by_onset = (
+
+    epicurve = (
         df[
             ~pd.isna(df.Date_onset_estimated)
             & df.Case_status.isin(["confirmed", "probable"])
         ]
-        .groupby("Date_onset_estimated")
+        .groupby(["Date_onset_estimated", "Case_status"])
         .size()
+        .reset_index()
+        .pivot(index="Date_onset_estimated", columns="Case_status", values=0)
+        .fillna(0)
+        .astype(int)
     )
-    if not cumulative:
-        return (
-            grouped_by_onset.sum()
-            .reset_index()
-            .sort_values(by="Date_onset_estimated")
-            .rename({0: "Num_cases"}, axis=1)
-        )
-    else:
-        return (
-            grouped_by_onset.cumsum()
-            .reset_index()
-            .sort_values(by="Date_onset_estimated")
-            .rename({0: "Cumulative_cases"}, axis=1)
-        )
+    if cumulative:
+        epicurve["confirmed"] = epicurve.confirmed.cumsum()
+        epicurve["probable"] = epicurve.probable.cumsum()
+    return epicurve.reset_index()
 
 
 def get_counts(df: pd.DataFrame) -> dict[str, int]:
@@ -276,6 +271,7 @@ def plot_timeseries_location_status(df: pd.DataFrame, columns: int = 3):
             + 1,
         ],
         gridcolor=GRID_COLOR,
+        zerolinecolor="#d0d0d0",
     )
     fig.update_xaxes(
         gridcolor=GRID_COLOR,
@@ -290,7 +286,7 @@ def plot_timeseries_location_status(df: pd.DataFrame, columns: int = 3):
     )
     for annotation in fig["layout"]["annotations"]:
         annotation["font"] = dict(
-            family=TITLE_FONT, size=LEGEND_FONT_SIZE + 2, color=FG_COLOR
+            family=TITLE_FONT, size=LEGEND_FONT_SIZE + 3, color=FG_COLOR
         )
 
     return fig
@@ -309,25 +305,24 @@ def plot_epicurve(df: pd.DataFrame, cumulative: bool = True):
     data = get_epicurve(df, cumulative=cumulative)
     fig = go.Figure()
 
-    if cumulative:
-        fig.add_trace(
-            go.Scatter(
-                x=data.Date_onset_estimated,
-                y=data.Cumulative_cases,
-                name="Cumulative cases",
-                line_color=PRIMARY_COLOR,
-                line_width=3,
-            ),
+    fig.add_trace(
+        go.Scatter(
+            x=data.Date_onset_estimated,
+            y=data.confirmed,
+            name="confirmed",
+            line_color=PRIMARY_COLOR,
+            line_width=3,
+        ),
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=data.Date_onset_estimated,
+            y=data.probable,
+            name="probable",
+            line_color=SECONDARY_COLOR,
+            line_width=3,
         )
-    else:
-        fig.add_trace(
-            go.Scatter(
-                x=data.Date_onset_estimated,
-                y=data.Num_cases,
-                name="Cases",
-                line_color=PRIMARY_COLOR,
-            ),
-        )
+    )
 
     fig.update_xaxes(
         title_text="Date of symptom onset",
@@ -341,13 +336,17 @@ def plot_epicurve(df: pd.DataFrame, cumulative: bool = True):
         title_font_family=TITLE_FONT,
         title_font_color=FG_COLOR,
         gridcolor=GRID_COLOR,
+        zeroline=False,
     )
     fig.update_layout(
         plot_bgcolor=BG_COLOR,
         font_family=FONT,
         paper_bgcolor=BG_COLOR,
         hoverlabel_font_family=FONT,
+        legend_font_family=TITLE_FONT,
+        legend_font_size=LEGEND_FONT_SIZE,
     )
+
     return fig
 
 
