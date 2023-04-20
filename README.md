@@ -72,4 +72,4 @@ This repository is published under MIT License and data exports are published un
 
 Please cite as: "Global.health Marburg (accessed on YYYY-MM-DD)" & please add the appropriate agency, paper, and/or individual in publications and/or derivatives using these data, contact them regarding the legal use of these data, and remember to pass-forward any existing license/warranty/copyright information.
 
-Please also refer to the original source of the data: Ministerio de Sanidad y Bienestar Social de la República de Guinea Equatorial (<https://guineasalud.org/>).
+Please also refer to the original source of the data: Ministerio de Sanidad y Bienestar Social de la República de Guinea Equatorial (<https://guineasalud.org/>) & World Health Organization (<https://www.who.int/emergencies/emergency-events/item/2023-e000057>)
